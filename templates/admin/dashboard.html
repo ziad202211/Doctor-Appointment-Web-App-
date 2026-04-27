@@ -13,6 +13,9 @@
 <a href="{{ url_for('admin_doctors') }}" class="sidebar-link">
     <span class="sidebar-icon">🩺</span> Doctors
 </a>
+<a href="{{ url_for('admin_availability') }}" class="sidebar-link">
+    <span class="sidebar-icon">📅</span> Availability
+</a>
 <a href="{{ url_for('admin_appointments') }}" class="sidebar-link">
     <span class="sidebar-icon">📋</span> Appointments
 </a>
@@ -71,8 +74,8 @@
         <tr>
         <td>{{ appt.user_name }}</td>
         <td>Dr. {{ appt.doctor_name }}</td>
-        <td>{{ appt.date }}</td>
-        <td>{{ appt.time_slot }}</td>
+        <td>{{ appt.appointment_date }}</td>
+        <td>{{ appt.appointment_time }}</td>
         <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
         </tr>
         {% else %}

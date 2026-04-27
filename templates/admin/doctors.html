@@ -43,7 +43,6 @@
       <div class="doctor-card">
         <div class="d-name">Dr. {{ doc.name }}</div>
         <div class="d-spec">{{ doc.specialty }}</div>
-        <div class="d-days">📅 {{ doc.available_days }}</div>
         <div class="d-actions">
           <a href="{{ url_for('delete_doctor', id=doc.id) }}"
              class="btn btn-danger btn-sm"
@@ -77,12 +76,6 @@
       <div class="form-group">
         <label for="specialty">Specialty</label>
         <input type="text" id="specialty" name="specialty" placeholder="e.g. Cardiologist" required />
-        <span class="err-msg"></span>
-      </div>
-
-      <div class="form-group">
-        <label for="days">Available Days</label>
-        <input type="text" id="days" name="days" placeholder="e.g. Mon, Wed, Fri" required />
         <span class="err-msg"></span>
       </div>
 
