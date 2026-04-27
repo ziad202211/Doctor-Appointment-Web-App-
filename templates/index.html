@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}MediBook — Book Your Doctor{% endblock %}
+
+{% block content %}
+<section class="hero fade-in">
+<div class="hero-text">
+<h1>Your health,<br><em>scheduled</em><br>with clarity.</h1>
+<p>Book verified doctors, manage appointments, and never miss a consultation — all in one place.</p>
+<div style="display:flex; gap:1rem; flex-wrap:wrap;">
+    <a href="{{ url_for('register') }}" class="btn btn-primary">Book an Appointment</a>
+    <a href="{{ url_for('login') }}" class="btn btn-secondary">Sign In</a>
+</div>
+</div>
+
+<div class="hero-visual">
+<div class="hero-card">
+    <p class="hero-card-title">Today's Overview</p>
+    <div class="stat-grid">
+    <div class="stat-box">
+        <div class="num">24</div>
+        <div class="label">Doctors Available</div>
+    </div>
+    <div class="stat-box">
+        <div class="num">8</div>
+        <div class="label">Specialties</div>
+    </div>
+    <div class="stat-box">
+        <div class="num">11</div>
+        <div class="label">Time Slots</div>
+    </div>
+    <div class="stat-box">
+        <div class="num">4–9<span style="font-size:1rem">pm</span></div>
+        <div class="label">Clinic Hours</div>
+    </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <p style="font-size:0.8rem; color:var(--muted);">Slots available every 30 minutes</p>
+    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.75rem;">
+    {% for slot in ['4:00','4:30','5:00','5:30','6:00','6:30','7:00','7:30','8:00','8:30','9:00'] %}
+    <span style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.2rem 0.5rem;font-size:0.72rem;color:var(--muted);">{{ slot }} PM</span>
+    {% endfor %}
+    </div>
+</div>
+</div>
+</section>
+{% endblock %}
