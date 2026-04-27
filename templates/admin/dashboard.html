@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — MediBook{% endblock %}
+
+{% block content %}
+<div class="dash-layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+<p class="sidebar-section">Admin Panel</p>
+<a href="{{ url_for('admin_dashboard') }}" class="sidebar-link active">
+    <span class="sidebar-icon">📊</span> Dashboard
+</a>
+<a href="{{ url_for('admin_doctors') }}" class="sidebar-link">
+    <span class="sidebar-icon">🩺</span> Doctors
+</a>
+<a href="{{ url_for('admin_appointments') }}" class="sidebar-link">
+    <span class="sidebar-icon">📋</span> Appointments
+</a>
+
+<p class="sidebar-section">Account</p>
+<a href="{{ url_for('logout') }}" class="sidebar-link">
+    <span class="sidebar-icon">🚪</span> Logout
+</a>
+</aside>
+
+<!-- Main -->
+<main class="dash-main">
+<div class="page-header fade-in">
+    <div>
+    <h1>Admin Dashboard</h1>
+    <p>System overview and quick stats.</p>
+    </div>
+</div>
+
+<div class="stats-row stagger">
+    <div class="stat-card">
+    <div class="s-label">Total Appointments</div>
+    <div class="s-num s-accent">{{ total.total }}</div>
+    </div>
+    <div class="stat-card">
+    <div class="s-label">Registered Users</div>
+    <div class="s-num">{{ users.users }}</div>
+    </div>
+    <div class="stat-card">
+    <div class="s-label">Total Doctors</div>
+    <div class="s-num">{{ doctors_count }}</div>
+    </div>
+    <div class="stat-card">
+    <div class="s-label">Pending</div>
+    <div class="s-num" style="color:var(--warning)">{{ pending.pending }}</div>
+    </div>
+</div>
+
+<div class="table-wrap fade-in">
+    <div class="table-head">
+    <h3>Recent Appointments</h3>
+    <a href="{{ url_for('admin_appointments') }}" class="btn btn-secondary btn-sm">View All</a>
+    </div>
+    <table>
+    <thead>
+        <tr>
+        <th>Patient</th>
+        <th>Doctor</th>
+        <th>Date</th>
+        <th>Slot</th>
+        <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appt in recent %}
+        <tr>
+        <td>{{ appt.user_name }}</td>
+        <td>Dr. {{ appt.doctor_name }}</td>
+        <td>{{ appt.date }}</td>
+        <td>{{ appt.time_slot }}</td>
+        <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center; color:var(--muted); padding:2rem;">No appointments yet.</td></tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+</main>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Appointments — MediBook{% endblock %}
+
+{% block content %}
+<div class="dash-layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+<p class="sidebar-section">Admin Panel</p>
+<a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+    <span class="sidebar-icon">📊</span> Dashboard
+</a>
+<a href="{{ url_for('admin_doctors') }}" class="sidebar-link">
+    <span class="sidebar-icon">🩺</span> Doctors
+</a>
+<a href="{{ url_for('admin_appointments') }}" class="sidebar-link active">
+    <span class="sidebar-icon">📋</span> Appointments
+</a>
+
+<p class="sidebar-section">Account</p>
+<a href="{{ url_for('logout') }}" class="sidebar-link">
+    <span class="sidebar-icon">🚪</span> Logout
+</a>
+</aside>
+
+<!-- Main -->
+<main class="dash-main">
+<div class="page-header fade-in">
+    <div>
+    <h1>All Appointments</h1>
+    <p>Review, confirm, or cancel patient bookings.</p>
+    </div>
+</div>
+
+<div class="table-wrap fade-in">
+    <div class="table-head">
+    <h3>Appointments</h3>
+    <span style="font-size:0.8rem; color:var(--muted);">{{ appointments|length }} total</span>
+    </div>
+
+    <table>
+    <thead>
+        <tr>
+        <th>#</th>
+        <th>Patient</th>
+        <th>Doctor</th>
+        <th>Date</th>
+        <th>Slot</th>
+        <th>Status</th>
+        <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appt in appointments %}
+        <tr>
+        <td style="color:var(--muted);">{{ appt.id }}</td>
+        <td>{{ appt.user_name }}</td>
+        <td>Dr. {{ appt.doctor_name }}</td>
+        <td>{{ appt.date }}</td>
+        <td>{{ appt.time_slot }}</td>
+        <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+        <td>
+            <div style="display:flex; gap:0.4rem;">
+            {% if appt.status != 'confirmed' %}
+            <a href="{{ url_for('update_appointment', id=appt.id, status='confirmed') }}"
+                class="btn btn-success btn-sm">Confirm</a>
+            {% endif %}
+            {% if appt.status != 'cancelled' %}
+            <a href="{{ url_for('update_appointment', id=appt.id, status='cancelled') }}"
+                class="btn btn-danger btn-sm"
+                onclick="return confirm('Cancel this appointment?')">Cancel</a>
+            {% endif %}
+            </div>
+        </td>
+        </tr>
+        {% else %}
+        <tr>
+        <td colspan="7" style="text-align:center; color:var(--muted); padding:3rem;">
+            No appointments found.
+        </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+</main>
+</div>
+{% endblock %}

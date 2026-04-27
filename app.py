@@ -74,6 +74,27 @@ def book():
 @app.route('/admin/dashboard')
 def admin_dashboard():
     db = get_db(); cur = db.cursor()
+    cur.execute("SELECT COUNT(*) as total FROM appointments")
+    total = cur.fetchone()
+    cur.execute("SELECT COUNT(*) as users FROM users")
+    users = cur.fetchone()
+    cur.execute("SELECT COUNT(*) as total FROM doctors")
+    doctors_count = cur.fetchone()
+    cur.execute("SELECT COUNT(*) as pending FROM appointments WHERE status='pending'")
+    pending = cur.fetchone()
+    cur.execute("""
+        SELECT a.*, u.name as user_name, d.name as doctor_name
+        FROM appointments a
+        JOIN users u ON a.user_id = u.id
+        JOIN doctors d ON a.doctor_id = d.id
+        ORDER BY a.id DESC LIMIT 5
+    """)
+    recent = cur.fetchall()
+    return render_template('admin/dashboard.html',
+        total=total, users=users,
+        doctors_count=doctors_count['total'],
+        pending=pending, recent=recent)
+    db = get_db(); cur = db.cursor()
     cur.execute("SELECT COUNT(*) as total FROM appointments"); total = cur.fetchone()
     cur.execute("SELECT COUNT(*) as users FROM users"); users = cur.fetchone()
     return render_template('admin/dashboard.html', total=total, users=users)
