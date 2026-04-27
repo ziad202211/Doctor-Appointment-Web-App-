@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}My Appointments — MediBook{% endblock %}
+
+{% block content %}
+<div class="dash-layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+<p class="sidebar-section">Navigation</p>
+<a href="{{ url_for('user_dashboard') }}" class="sidebar-link active">
+    <span class="sidebar-icon">📋</span> My Appointments
+</a>
+<a href="{{ url_for('book') }}" class="sidebar-link">
+    <span class="sidebar-icon">➕</span> Book Appointment
+</a>
+
+<p class="sidebar-section">Account</p>
+<a href="{{ url_for('logout') }}" class="sidebar-link">
+    <span class="sidebar-icon">🚪</span> Logout
+</a>
+</aside>
+
+<!-- Main -->
+<main class="dash-main">
+<div class="page-header fade-in">
+    <div>
+    <h1>My Appointments</h1>
+    <p>Track and manage your bookings.</p>
+    </div>
+    <a href="{{ url_for('book') }}" class="btn btn-primary">+ New Booking</a>
+</div>
+
+{% if appointments %}
+<div class="appt-list stagger">
+    {% for appt in appointments %}
+    <div class="appt-card">
+    <div class="appt-info">
+        <div class="name">Dr. {{ appt.doctor_name }}</div>
+        <div class="meta">{{ appt.specialty }} &nbsp;·&nbsp; {{ appt.date }} &nbsp;·&nbsp; {{ appt.time_slot }}</div>
+    </div>
+    <div class="appt-right">
+        <span class="badge badge-{{ appt.status }}">{{ appt.status }}</span>
+    </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state fade-in">
+    <div class="icon">🩺</div>
+    <h3>No appointments yet</h3>
+    <p>Book your first consultation with a doctor.</p>
+    <a href="{{ url_for('book') }}" class="btn btn-primary" style="margin-top:1rem">Book Now</a>
+</div>
+{% endif %}
+</main>
+</div>
+{% endblock %}

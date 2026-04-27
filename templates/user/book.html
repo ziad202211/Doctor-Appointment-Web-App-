@@ -1,0 +1,101 @@
+{% extends 'base.html' %} {% block title %}Book Appointment — MediBook{%
+endblock %} {% block content %}
+<div class="dash-layout">
+<!-- Sidebar -->
+<aside class="sidebar">
+<p class="sidebar-section">Navigation</p>
+<a href="{{ url_for('user_dashboard') }}" class="sidebar-link">
+    <span class="sidebar-icon">📋</span> My Appointments
+</a>
+<a href="{{ url_for('book') }}" class="sidebar-link active">
+    <span class="sidebar-icon">➕</span> Book Appointment
+</a>
+
+<p class="sidebar-section">Account</p>
+<a href="{{ url_for('logout') }}" class="sidebar-link">
+    <span class="sidebar-icon">🚪</span> Logout
+</a>
+</aside>
+
+<!-- Main -->
+<main class="dash-main">
+<div class="page-header fade-in">
+    <div>
+    <h1>Book Appointment</h1>
+    <p>Choose a doctor, date, and time slot.</p>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card fade-in">
+    <h3>Appointment Details</h3>
+    <form method="POST" action="{{ url_for('book') }}" novalidate>
+    <div class="form-group">
+        <label for="doctor_id">Select Doctor</label>
+        <select id="doctor_id" name="doctor_id" required>
+        <option value="">-- Choose a doctor --</option>
+        {% for doctor in doctors %}
+        <option value="{{ doctor.id }}">
+            Dr. {{ doctor.name }} — {{ doctor.specialty }}
+        </option>
+        {% endfor %}
+        </select>
+        <span class="err-msg"></span>
+    </div>
+
+    <div class="book-grid">
+        <div class="form-group">
+        <label for="date">Appointment Date</label>
+        <input type="date" id="date" name="date" required />
+        <span class="err-msg"></span>
+        </div>
+
+        <div class="form-group">
+        <label for="time_slot">Time Slot</label>
+        <select id="time_slot" name="time_slot" required>
+            <option value="">-- Select a slot --</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="16:30">4:30 PM</option>
+            <option value="17:00">5:00 PM</option>
+            <option value="17:30">5:30 PM</option>
+            <option value="18:00">6:00 PM</option>
+            <option value="18:30">6:30 PM</option>
+            <option value="19:00">7:00 PM</option>
+            <option value="19:30">7:30 PM</option>
+            <option value="20:00">8:00 PM</option>
+            <option value="20:30">8:30 PM</option>
+            <option value="21:00">9:00 PM</option>
+        </select>
+        <span class="err-msg"></span>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 0.5rem">
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+        <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary"
+        >Cancel</a
+        >
+    </div>
+    </form>
+</div>
+
+{% if doctors %}
+<div class="card fade-in">
+    <h3>Available Doctors</h3>
+    <div class="doctor-grid">
+    {% for doctor in doctors %}
+    <div class="doctor-card">
+        <div class="d-name">Dr. {{ doctor.name }}</div>
+        <div class="d-spec">{{ doctor.specialty }}</div>
+        <div class="d-days">📅 {{ doctor.available_days }}</div>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+{% endif %}
+</main>
+</div>
+{% endblock %}
