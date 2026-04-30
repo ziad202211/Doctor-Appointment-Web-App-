@@ -343,6 +343,15 @@ nav {
   transform: translateY(-2px);
 }
 
+.auth-wrap {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #F6FBFF 0%, #CDEAFE 100%);
+}
+
 .auth-card {
   background: var(--surface-color);
   border: 2px solid var(--border-color);
