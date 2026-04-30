@@ -1,108 +1,123 @@
-{% extends 'base.html' %} {% block title %}Book Appointment — MediBook{%
-endblock %} {% block content %}
-<div class="dash-layout">
-<!-- Sidebar -->
-<aside class="sidebar">
-<p class="sidebar-section">Navigation</p>
-<a href="{{ url_for('user_dashboard') }}" class="sidebar-link">
-    <span class="sidebar-icon">📋</span> My Appointments
-</a>
-<a href="{{ url_for('book') }}" class="sidebar-link active">
-    <span class="sidebar-icon">➕</span> Book Appointment
-</a>
+{% extends 'base.html' %} {% block title %}Book Appointment — MediBook{% endblock %}
 
-<p class="sidebar-section">Account</p>
-<a href="{{ url_for('logout') }}" class="sidebar-link">
-    <span class="sidebar-icon">🚪</span> Logout
-</a>
-</aside>
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/booking.css') }}">
+{% endblock %}
 
-<!-- Main -->
-<main class="dash-main">
-<div class="page-header fade-in">
-    <div>
-    <h1>Book Appointment</h1>
-    <p>Choose a doctor, date, and time slot.</p>
-    </div>
-</div>
+{% block content %}
+<div class="booking-container">
+  <div class="booking-header fade-in">
+    <h1>Book Your Appointment</h1>
+    <p>Choose a healthcare provider and schedule your visit</p>
+  </div>
 
-{% if error %}
-<div class="alert alert-error">{{ error }}</div>
-{% endif %}
+  {% if error %}
+  <div class="alert alert-error fade-in">
+    <strong>⚠️ Booking Error:</strong> {{ error }}
+  </div>
+  {% endif %}
 
-<div class="card fade-in">
-    <h3>Appointment Details</h3>
-    <form method="POST" action="{{ url_for('book') }}" novalidate>
-    <div class="form-group">
-        <label for="doctor_id">Select Doctor</label>
-        <select id="doctor_id" name="doctor_id" required>
-        <option value="">-- Choose a doctor --</option>
+  <!-- Doctor Selection View (shown by default) -->
+  <div id="doctor-selection" class="fade-in">
+    <div class="doctors-section">
+      <h2 class="section-title">Available Doctors</h2>
+      
+      <!-- Specialty Filter -->
+      <div class="specialty-filter">
+        <label for="specialty-filter"> Filter by Specialty:</label>
+        <select id="specialty-filter" class="form-control">
+          <option value="">All Specialties</option>
+          {% for specialty in specialties %}
+          <option value="{{ specialty }}">{{ specialty }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      {% if doctors %}
+      <div class="doctor-grid" id="doctor-grid">
         {% for doctor in doctors %}
-        <option value="{{ doctor.id }}">
-            Dr. {{ doctor.name }} — {{ doctor.specialty }}
-        </option>
+        <div class="doctor-card" data-doctor-id="{{ doctor.id }}" data-specialty="{{ doctor.specialty }}">
+          <div class="doctor-avatar">
+            👨‍⚕️
+          </div>
+          <div class="doctor-name">Dr. {{ doctor.name }}</div>
+          <div class="doctor-specialty">{{ doctor.specialty }}</div>
+          <div class="doctor-action">
+            <button class="btn btn-primary btn-sm">Select Doctor</button>
+          </div>
+        </div>
         {% endfor %}
-        </select>
-        <span class="err-msg"></span>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">👨‍⚕️</div>
+        <h3>No Doctors Available</h3>
+        <p>Please check back later or contact our office for assistance.</p>
+      </div>
+      {% endif %}
     </div>
+  </div>
 
-    <div id="availability-info" style="display: none;" class="card" style="margin: 1rem 0; background: var(--bg-secondary);">
-        <h4>Doctor Weekly Schedule</h4>
-        <div id="availability-schedule"></div>
-    </div>
+  <!-- Appointment Details View (shown when doctor is selected) -->
+  <div id="appointment-details" style="display: none;" class="fade-in">
+    <div class="booking-form-section">
+      <div class="selected-doctor-header">
+        <button id="back-to-doctors" class="btn btn-secondary btn-sm">← Back to Doctors</button>
+        <div class="selected-doctor-info">
+          <h3 id="selected-doctor-name">Dr. [Doctor Name]</h3>
+          <p id="selected-doctor-specialty">[Specialty]</p>
+        </div>
+      </div>
 
-    <div class="form-group">
-        <label for="day_of_week">Select Day</label>
-        <select id="day_of_week" name="day_of_week" required>
-            <option value="">-- Select a day --</option>
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
-        </select>
-        <span class="err-msg"></span>
-    </div>
+      <div class="appointment-form">
+        <h4 class="section-title">Schedule Your Appointment</h4>
+        
+        <form method="POST" action="{{ url_for('book') }}" novalidate>
+          <input type="hidden" id="doctor_id" name="doctor_id">
+          
+          <div id="availability-info" style="display: none;" class="availability-card">
+            <h4>📅 Doctor Weekly Schedule</h4>
+            <div id="availability-schedule"></div>
+          </div>
 
-    <div class="form-group">
-        <label for="date">Appointment Date</label>
-        <input type="date" id="date" name="date" required />
-        <span class="err-msg"></span>
-    </div>
+          <div class="form-group">
+            <label for="day_of_week">📆 Select Day</label>
+            <select id="day_of_week" name="day_of_week" class="form-control" required>
+              <option value="">Select a day of the week...</option>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
 
-    <div class="form-group">
-        <label for="time_slot">Time Slot</label>
-        <select id="time_slot" name="time" required>
-            <option value="">-- Select a slot --</option>
-        </select>
-        <span class="err-msg"></span>
-    </div>
+          <div class="form-group">
+            <label for="date">📋 Appointment Date</label>
+            <input type="date" id="date" name="date" class="form-control" required />
+          </div>
 
-    <div style="display: flex; gap: 1rem; margin-top: 0.5rem">
-        <button type="submit" class="btn btn-primary">Confirm Booking</button>
-        <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary"
-        >Cancel</a
-        >
-    </div>
-    </form>
-</div>
+          <div class="form-group">
+            <label for="time_slot">⏰ Time Slot</label>
+            <select id="time_slot" name="time" class="form-control" required>
+              <option value="">Select a time slot...</option>
+            </select>
+          </div>
 
-{% if doctors %}
-<div class="card fade-in">
-    <h3>Available Doctors</h3>
-    <div class="doctor-grid">
-    {% for doctor in doctors %}
-    <div class="doctor-card">
-        <div class="d-name">Dr. {{ doctor.name }}</div>
-        <div class="d-spec">{{ doctor.specialty }}</div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              ✅ Confirm Booking
+            </button>
+            <button type="button" id="cancel-booking" class="btn btn-secondary">
+              ❌ Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    {% endfor %}
-    </div>
-</div>
-{% endif %}
-</main>
+  </div>
 </div>
 
 <script>
@@ -113,32 +128,125 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeSelect = document.getElementById('time_slot');
     const availabilityInfo = document.getElementById('availability-info');
     const availabilitySchedule = document.getElementById('availability-schedule');
+    const specialtyFilter = document.getElementById('specialty-filter');
+    const doctorGrid = document.getElementById('doctor-grid');
+    
+    // View elements
+    const doctorSelection = document.getElementById('doctor-selection');
+    const appointmentDetails = document.getElementById('appointment-details');
+    const backToDoctors = document.getElementById('back-to-doctors');
+    const cancelBooking = document.getElementById('cancel-booking');
+    const selectedDoctorName = document.getElementById('selected-doctor-name');
+    const selectedDoctorSpecialty = document.getElementById('selected-doctor-specialty');
 
     // Set minimum date to today
     const today = new Date().toISOString().split('T')[0];
     dateInput.min = today;
 
+    // Function to filter doctors by specialty
+    function filterDoctorsBySpecialty() {
+        const selectedSpecialty = specialtyFilter.value.toLowerCase();
+        const doctorCards = doctorGrid.querySelectorAll('.doctor-card');
+        
+        doctorCards.forEach(card => {
+            const cardSpecialty = card.getAttribute('data-specialty').toLowerCase();
+            
+            if (selectedSpecialty === '' || cardSpecialty === selectedSpecialty) {
+                card.style.display = 'block';
+                card.classList.add('fade-in');
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Check if any doctors are visible
+        const visibleDoctors = Array.from(doctorCards).filter(card => card.style.display !== 'none');
+        const noResultsMessage = doctorGrid.querySelector('.no-results');
+        
+        if (visibleDoctors.length === 0 && !noResultsMessage) {
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results empty-state';
+            noResults.innerHTML = `
+                <div class="icon">🔍</div>
+                <h3>No Doctors Found</h3>
+                <p>No doctors available for the selected specialty.</p>
+            `;
+            doctorGrid.appendChild(noResults);
+        } else if (visibleDoctors.length > 0 && noResultsMessage) {
+            noResultsMessage.remove();
+        }
+    }
+
+    // Function to show appointment details for selected doctor
+    function showAppointmentDetails(doctorId, doctorName, doctorSpecialty) {
+        // Update selected doctor info
+        selectedDoctorName.textContent = `Dr. ${doctorName}`;
+        selectedDoctorSpecialty.textContent = doctorSpecialty;
+        doctorSelect.value = doctorId;
+        
+        // Hide doctor selection and show appointment details
+        doctorSelection.style.display = 'none';
+        appointmentDetails.style.display = 'block';
+        
+        // Load doctor availability
+        loadDoctorAvailability(doctorId);
+    }
+
+    // Function to go back to doctor selection
+    function backToDoctorSelection() {
+        appointmentDetails.style.display = 'none';
+        doctorSelection.style.display = 'block';
+        
+        // Reset form
+        doctorSelect.value = '';
+        daySelect.value = '';
+        dateInput.value = '';
+        timeSelect.innerHTML = '<option value="">Select a time slot...</option>';
+        availabilityInfo.style.display = 'none';
+    }
+
+    // Function to load doctor availability
+    function loadDoctorAvailability(doctorId) {
+        availabilityInfo.style.display = 'block';
+        availabilitySchedule.innerHTML = '<p>Loading schedule...</p>';
+        
+        fetch(`/api/doctor/${doctorId}/availability`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    availabilitySchedule.innerHTML = `<p style="color: #dc3545;">Error loading schedule: ${data.error}</p>`;
+                    return;
+                }
+                
+                showWeeklySchedule(data);
+            })
+            .catch(error => {
+                console.error('Error fetching weekly schedule:', error);
+                availabilitySchedule.innerHTML = '<p style="color: #dc3545;">Error loading schedule</p>';
+            });
+    }
+
     // Function to generate time slots
     function generateTimeSlots(startTime, endTime) {
-        console.log('generateTimeSlots called with:', { startTime, endTime }); // Debug
         const slots = [];
         const start = new Date(`2000-01-01T${startTime}`);
         const end = new Date(`2000-01-01T${endTime}`);
         
-        console.log('Parsed start time:', start, 'Parsed end time:', end); // Debug
-        
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            console.error('Invalid time format'); // Debug
             return [];
         }
         
         while (start < end) {
             const timeStr = start.toTimeString().slice(0, 5);
             slots.push(timeStr);
-            start.setMinutes(start.getMinutes() + 30); // 30-minute slots
+            start.setMinutes(start.getMinutes() + 30);
         }
         
-        console.log('Generated slots array:', slots); // Debug
         return slots;
     }
 
@@ -151,14 +259,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const dayAvailability = data.availability.find(avail => avail.day_of_week === day);
             if (dayAvailability) {
                 scheduleHtml += `
-                    <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px;">
+                    <div class="schedule-item available">
                         <strong>${day}:</strong>
                         <span>${dayAvailability.start_time} - ${dayAvailability.end_time}</span>
                     </div>
                 `;
             } else {
                 scheduleHtml += `
-                    <div style="display: flex; justify-content: space-between; padding: 0.5rem; color: var(--muted); opacity: 0.7;">
+                    <div class="schedule-item unavailable">
                         <strong>${day}:</strong>
                         <span>Not Available</span>
                     </div>
@@ -175,47 +283,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const doctorId = doctorSelect.value;
         const selectedDay = daySelect.value;
 
-        console.log('updateTimeSlots called with:', { doctorId, selectedDay }); // Debug
-
         if (!doctorId || !selectedDay) {
-            timeSelect.innerHTML = '<option value="">-- Select a slot --</option>';
+            timeSelect.innerHTML = '<option value="">Select a time slot...</option>';
             return;
         }
 
         // Show loading state
-        timeSelect.innerHTML = '<option value="">-- Loading availability --</option>';
+        timeSelect.innerHTML = '<option value="">Loading availability...</option>';
 
         // Fetch doctor availability
         fetch(`/api/doctor/${doctorId}/availability`)
             .then(response => {
-                console.log('Response status:', response.status); // Debug
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Availability data received:', data); // Debug
-                
                 if (data.error) {
-                    console.error('Server error:', data.error);
-                    timeSelect.innerHTML = '<option value="">-- Error loading availability --</option>';
+                    timeSelect.innerHTML = '<option value="">Error loading availability</option>';
                     return;
                 }
 
-                console.log('Looking for day:', selectedDay); // Debug
-                console.log('Available days:', data.availability.map(a => a.day_of_week)); // Debug
-
                 const dayAvailability = data.availability.find(avail => avail.day_of_week === selectedDay);
-                console.log('Day availability found:', dayAvailability); // Debug
 
                 if (dayAvailability) {
-                    console.log('Start time:', dayAvailability.start_time, 'End time:', dayAvailability.end_time); // Debug
                     const slots = generateTimeSlots(dayAvailability.start_time, dayAvailability.end_time);
-                    console.log('Generated slots:', slots); // Debug
                     
                     // Clear existing options
-                    timeSelect.innerHTML = '<option value="">-- Select a slot --</option>';
+                    timeSelect.innerHTML = '<option value="">Select a time slot...</option>';
                     
                     // Add available time slots
                     slots.forEach(slot => {
@@ -230,13 +326,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         timeSelect.appendChild(option);
                     });
                 } else {
-                    console.log('No availability for day:', selectedDay); // Debug
-                    timeSelect.innerHTML = '<option value="">-- No availability --</option>';
+                    timeSelect.innerHTML = '<option value="">No availability for this day</option>';
                 }
             })
             .catch(error => {
                 console.error('Error fetching availability:', error);
-                timeSelect.innerHTML = '<option value="">-- Error loading availability --</option>';
+                timeSelect.innerHTML = '<option value="">Error loading availability</option>';
             });
     }
 
@@ -257,42 +352,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Event listeners
-    doctorSelect.addEventListener('change', function() {
-        const doctorId = doctorSelect.value;
-        if (doctorId) {
-            availabilityInfo.style.display = 'block';
-            availabilitySchedule.innerHTML = '<p>Loading schedule...</p>';
+    // Event listeners for specialty filter
+    specialtyFilter.addEventListener('change', filterDoctorsBySpecialty);
+
+    // Event listeners for doctor cards
+    document.addEventListener('click', function(e) {
+        const doctorCard = e.target.closest('.doctor-card');
+        const selectButton = e.target.closest('.doctor-action button');
+        
+        if (doctorCard || selectButton) {
+            const card = selectButton ? selectButton.closest('.doctor-card') : doctorCard;
+            const doctorId = card.getAttribute('data-doctor-id');
+            const doctorName = card.querySelector('.doctor-name').textContent.replace('Dr. ', '');
+            const doctorSpecialty = card.querySelector('.doctor-specialty').textContent;
             
-            fetch(`/api/doctor/${doctorId}/availability`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Weekly schedule data:', data); // Debug log
-                    
-                    if (data.error) {
-                        console.error('Server error:', data.error);
-                        availabilitySchedule.innerHTML = `<p style="color: var(--error);">Error loading schedule: ${data.error}</p>`;
-                        return;
-                    }
-                    
-                    showWeeklySchedule(data);
-                    updateTimeSlots();
-                })
-                .catch(error => {
-                    console.error('Error fetching weekly schedule:', error);
-                    availabilitySchedule.innerHTML = '<p style="color: var(--error);">Error loading schedule</p>';
-                });
-        } else {
-            availabilityInfo.style.display = 'none';
-            timeSelect.innerHTML = '<option value="">-- Select a slot --</option>';
+            showAppointmentDetails(doctorId, doctorName, doctorSpecialty);
         }
     });
 
+    // Event listeners for navigation
+    backToDoctors.addEventListener('click', backToDoctorSelection);
+    cancelBooking.addEventListener('click', backToDoctorSelection);
+
+    // Event listeners for form
     daySelect.addEventListener('change', updateTimeSlots);
     dateInput.addEventListener('change', validateDateDayMatch);
     dateInput.addEventListener('input', validateDateDayMatch);

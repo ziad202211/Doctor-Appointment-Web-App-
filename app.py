@@ -61,6 +61,12 @@ def user_dashboard():
 @app.route('/user/book', methods=['GET', 'POST'])
 def book():
     db = get_db(); cur = db.cursor()
+    
+    # Get all specialties for the filter dropdown
+    cur.execute("SELECT DISTINCT specialty FROM doctors ORDER BY specialty")
+    specialties_result = cur.fetchall()
+    specialties = [row['specialty'] for row in specialties_result]
+    
     if request.method == 'POST':
         doctor_id = request.form['doctor_id']
         appointment_date = request.form['date']
@@ -74,7 +80,7 @@ def book():
             if actual_day != selected_day:
                 cur.execute("SELECT * FROM doctors")
                 doctors = cur.fetchall()
-                return render_template('user/book.html', doctors=doctors, 
+                return render_template('user/book.html', doctors=doctors, specialties=specialties,
                                      error=f"The selected date is a {actual_day}, but you selected {selected_day}. Please choose a matching date.")
         
         # Check if doctor is available at this time
@@ -90,7 +96,7 @@ def book():
         if not availability:
             cur.execute("SELECT * FROM doctors")
             doctors = cur.fetchall()
-            return render_template('user/book.html', doctors=doctors, 
+            return render_template('user/book.html', doctors=doctors, specialties=specialties,
                                  error="Doctor is not available at this time")
         
         # Check for existing appointment
@@ -103,7 +109,7 @@ def book():
         if existing:
             cur.execute("SELECT * FROM doctors")
             doctors = cur.fetchall()
-            return render_template('user/book.html', doctors=doctors, 
+            return render_template('user/book.html', doctors=doctors, specialties=specialties,
                                  error="This time slot is already booked")
         
         cur.execute("INSERT INTO appointments (user_id, doctor_id, appointment_date, appointment_time) VALUES (%s, %s, %s, %s)",
@@ -113,7 +119,7 @@ def book():
     
     cur.execute("SELECT * FROM doctors")
     doctors = cur.fetchall()
-    return render_template('user/book.html', doctors=doctors)
+    return render_template('user/book.html', doctors=doctors, specialties=specialties)
 
 # --- ADMIN ---
 @app.route('/admin/dashboard')
